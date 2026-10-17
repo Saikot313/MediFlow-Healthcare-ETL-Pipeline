@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  tests:
+    name: unit + integration tests (PostgreSQL)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: warehouse
+          POSTGRES_PASSWORD: warehouse
+          POSTGRES_DB: warehouse_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U warehouse" --health-interval 5s
+          --health-timeout 5s --health-retries 10
+    env:
+      MEDIFLOW_TEST_URL: postgresql+psycopg2://warehouse:warehouse@localhost:5432/warehouse_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - run: pytest -q
+
+  dags:
+    name: DAG integrity (Airflow 2.10.5)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install Airflow with its official constraints
+        run: |
+          pip install "apache-airflow==2.10.5" -e ".[dev]" \
+            --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.10.5/constraints-3.11.txt"
+      - run: pytest -q tests/test_dags.py
