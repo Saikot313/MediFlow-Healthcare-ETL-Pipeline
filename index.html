@@ -1,0 +1,2371 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#070d18">
+    <meta name="description"
+        content="MediFlow — an interactive architecture and dimensional data model explorer for a synthetic healthcare ETL pipeline.">
+    <title>MediFlow | Data Architecture Explorer</title>
+    <style>
+        :root {
+            --bg: #070d18;
+            --panel: #0c1726;
+            --panel2: #101f31;
+            --line: #23354a;
+            --text: #edf7ff;
+            --muted: #8fa5bc;
+            --mint: #65f5c2;
+            --cyan: #60d9f2;
+            --violet: #a99aff;
+            --amber: #ffc778;
+            --rose: #ff879d;
+            --shadow: 0 24px 80px #0007
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 86px
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font: 15px/1.6 Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+            overflow-x: hidden
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none
+        }
+
+        button {
+            font: inherit;
+            color: inherit;
+            cursor: pointer
+        }
+
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: -2;
+            background-image: linear-gradient(#a4d7ff08 1px, transparent 1px), linear-gradient(90deg, #a4d7ff08 1px, transparent 1px);
+            background-size: 48px 48px;
+            mask-image: linear-gradient(to bottom, #000 0%, transparent 90%)
+        }
+
+        .aurora {
+            position: fixed;
+            z-index: -1;
+            pointer-events: none;
+            width: 45vw;
+            height: 45vw;
+            filter: blur(100px);
+            opacity: .12;
+            border-radius: 50%;
+            background: var(--mint);
+            top: -22vw;
+            left: 45vw;
+            animation: aurora 14s ease-in-out infinite alternate
+        }
+
+        .aurora.two {
+            background: #756bff;
+            top: 40vh;
+            left: -28vw;
+            animation-delay: -6s
+        }
+
+        @keyframes aurora {
+            to {
+                transform: translate(8vw, 12vh) scale(1.2)
+            }
+        }
+
+        .shell {
+            width: min(1600px, calc(100% - 48px));
+            margin: auto
+        }
+
+        .top {
+            position: sticky;
+            top: 0;
+            z-index: 30;
+            background: #070d18d9;
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid #ffffff12
+        }
+
+        .nav {
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 850;
+            letter-spacing: -.04em;
+            font-size: 1.15rem
+        }
+
+        .logo {
+            width: 36px;
+            height: 36px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--mint), var(--cyan));
+            color: #062019;
+            display: grid;
+            place-items: center;
+            box-shadow: 0 0 30px #65f5c229
+        }
+
+        .logo svg {
+            width: 22px
+        }
+
+        .brand small {
+            display: block;
+            font-size: .58rem;
+            color: var(--muted);
+            letter-spacing: .16em;
+            text-transform: uppercase;
+            margin-top: -4px
+        }
+
+        .links {
+            display: flex;
+            gap: 22px;
+            color: #a6b8ca;
+            font-size: .82rem
+        }
+
+        .links a:hover {
+            color: var(--mint)
+        }
+
+        .navright {
+            display: flex;
+            gap: 9px;
+            align-items: center
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 14px;
+            border-radius: 11px;
+            border: 1px solid var(--line);
+            background: #ffffff05;
+            font-size: .8rem;
+            font-weight: 750;
+            transition: .22s
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            border-color: #65f5c277
+        }
+
+        .btn.primary {
+            background: var(--mint);
+            color: #062019;
+            border-color: transparent
+        }
+
+        .btn.primary:hover {
+            background: #9affd9
+        }
+
+        .btn svg {
+            width: 15px;
+            height: 15px
+        }
+
+        .menu {
+            display: none;
+            background: transparent;
+            border: 1px solid var(--line);
+            border-radius: 9px;
+            padding: 8px
+        }
+
+        .hero {
+            padding: 78px 0 42px;
+            display: grid;
+            grid-template-columns: .9fr 1.1fr;
+            gap: 50px;
+            align-items: center;
+            min-height: 570px
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            gap: 8px;
+            align-items: center;
+            border: 1px solid #65f5c233;
+            background: #65f5c20c;
+            color: #a8ffdf;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: .68rem;
+            letter-spacing: .13em;
+            text-transform: uppercase;
+            font-weight: 800
+        }
+
+        .pulse {
+            width: 7px;
+            height: 7px;
+            background: var(--mint);
+            border-radius: 50%;
+            box-shadow: 0 0 0 5px #65f5c21c;
+            animation: pulse 2s infinite
+        }
+
+        @keyframes pulse {
+            50% {
+                box-shadow: 0 0 0 9px #65f5c200
+            }
+        }
+
+        h1 {
+            font-size: clamp(3rem, 5.6vw, 5.5rem);
+            line-height: .98;
+            letter-spacing: -.075em;
+            margin: 22px 0
+        }
+
+        .shine {
+            background: linear-gradient(110deg, #f7fbff 0%, var(--mint) 46%, var(--cyan) 75%, var(--violet));
+            background-size: 200%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: shine 8s linear infinite
+        }
+
+        @keyframes shine {
+            to {
+                background-position: 200% center
+            }
+        }
+
+        .hero p {
+            color: #9eb2c7;
+            font-size: 1rem;
+            line-height: 1.85;
+            max-width: 570px
+        }
+
+        .hero p b {
+            color: #e7f8ff
+        }
+
+        .hero-cta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 25px 0
+        }
+
+        .microline {
+            font-size: .73rem;
+            color: #718aa4;
+            display: flex;
+            align-items: center;
+            gap: 8px
+        }
+
+        .microline span {
+            color: var(--mint)
+        }
+
+        .visual {
+            position: relative;
+            min-width: 0
+        }
+
+        .visual:before {
+            content: "";
+            position: absolute;
+            inset: 10% 6%;
+            background: linear-gradient(120deg, #65f5c2, #756bff);
+            filter: blur(70px);
+            opacity: .13
+        }
+
+        .window {
+            position: relative;
+            border: 1px solid #91b5d32b;
+            border-radius: 22px;
+            overflow: hidden;
+            background: linear-gradient(140deg, #101f31f5, #091422f7);
+            box-shadow: var(--shadow);
+            transform: perspective(1200px) rotateY(-2deg)
+        }
+
+        .window-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 17px;
+            border-bottom: 1px solid #ffffff10;
+            background: #ffffff03
+        }
+
+        .dots {
+            display: flex;
+            gap: 5px
+        }
+
+        .dots i {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #41566b
+        }
+
+        .dots i:first-child {
+            background: var(--rose)
+        }
+
+        .dots i:nth-child(2) {
+            background: var(--amber)
+        }
+
+        .dots i:nth-child(3) {
+            background: var(--mint)
+        }
+
+        .win-title {
+            font-size: .7rem;
+            color: #a6bbce;
+            font-weight: 750
+        }
+
+        .mini-live {
+            color: var(--mint);
+            font-size: .64rem
+        }
+
+        .window-body {
+            padding: 18px
+        }
+
+        .window-title {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: center
+        }
+
+        .window-title b {
+            font-size: .95rem
+        }
+
+        .window-title small {
+            display: block;
+            color: var(--muted);
+            font-size: .69rem
+        }
+
+        .live-pill {
+            font-size: .64rem;
+            border: 1px solid #65f5c22b;
+            color: var(--mint);
+            padding: 5px 8px;
+            border-radius: 7px
+        }
+
+        .mini-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 9px;
+            margin: 16px 0
+        }
+
+        .mini-stat {
+            padding: 12px;
+            border: 1px solid #ffffff12;
+            background: #ffffff03;
+            border-radius: 12px
+        }
+
+        .mini-stat small {
+            display: block;
+            color: var(--muted);
+            font-size: .65rem
+        }
+
+        .mini-stat b {
+            display: block;
+            font-size: 1.35rem;
+            letter-spacing: -.05em
+        }
+
+        .mini-stat span {
+            font-size: .62rem;
+            color: var(--mint)
+        }
+
+        .flow-preview {
+            padding: 14px;
+            border: 1px solid #ffffff12;
+            border-radius: 14px;
+            background: #060e19
+        }
+
+        .flow-preview h4 {
+            font-size: .72rem;
+            margin: 0 0 13px;
+            display: flex;
+            justify-content: space-between
+        }
+
+        .flow-preview h4 span {
+            color: var(--muted);
+            font-weight: 500
+        }
+
+        .flowline {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px
+        }
+
+        .flowstep {
+            text-align: center;
+            position: relative;
+            min-width: 0
+        }
+
+        .flowstep .ico {
+            width: 39px;
+            height: 39px;
+            display: grid;
+            place-items: center;
+            border: 1px solid #ffffff14;
+            background: #12253a;
+            border-radius: 12px;
+            margin: 0 auto 7px;
+            color: var(--cyan)
+        }
+
+        .flowstep:nth-child(2) .ico {
+            color: var(--amber)
+        }
+
+        .flowstep:nth-child(3) .ico {
+            color: var(--mint)
+        }
+
+        .flowstep:nth-child(4) .ico {
+            color: var(--violet)
+        }
+
+        .flowstep:nth-child(5) .ico {
+            color: var(--cyan)
+        }
+
+        .flowstep svg {
+            width: 18px;
+            height: 18px
+        }
+
+        .flowstep b {
+            display: block;
+            font-size: .61rem
+        }
+
+        .flowstep small {
+            display: block;
+            font-size: .56rem;
+            color: var(--muted)
+        }
+
+        .flowstep:not(:last-child):after {
+            content: "";
+            position: absolute;
+            left: calc(50% + 24px);
+            right: -3px;
+            top: 19px;
+            border-top: 1px dashed #517288
+        }
+
+        .flowstep:not(:last-child):before {
+            content: "›";
+            position: absolute;
+            right: -5px;
+            top: 8px;
+            color: var(--mint);
+            z-index: 2
+        }
+
+        .window-foot {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            flex-wrap: wrap;
+            color: #718ba4;
+            font-size: .64rem;
+            margin-top: 13px
+        }
+
+        .float-chip {
+            position: absolute;
+            right: -12px;
+            bottom: 26px;
+            padding: 12px 14px;
+            background: #10263a;
+            border: 1px solid #65f5c23b;
+            border-radius: 13px;
+            box-shadow: 0 16px 45px #0008;
+            animation: float 5s ease-in-out infinite
+        }
+
+        .float-chip small {
+            display: block;
+            color: var(--muted);
+            font-size: .65rem
+        }
+
+        .float-chip b {
+            font-size: .9rem
+        }
+
+        .float-chip span {
+            color: var(--mint);
+            font-size: .65rem
+        }
+
+        @keyframes float {
+            50% {
+                transform: translateY(-8px)
+            }
+        }
+
+        .quicknav {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 10px 0 60px
+        }
+
+        .quicknav a {
+            flex: 1;
+            min-width: 180px;
+            padding: 15px;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: #ffffff03;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: .2s
+        }
+
+        .quicknav a:hover {
+            transform: translateY(-3px);
+            border-color: #65f5c255;
+            background: #65f5c208
+        }
+
+        .qn {
+            width: 35px;
+            height: 35px;
+            display: grid;
+            place-items: center;
+            border-radius: 10px;
+            background: #65f5c212;
+            color: var(--mint);
+            font-weight: 850
+        }
+
+        .quicknav b {
+            font-size: .79rem;
+            display: block
+        }
+
+        .quicknav small {
+            display: block;
+            color: var(--muted);
+            font-size: .67rem
+        }
+
+        .section {
+            padding: 64px 0 82px
+        }
+
+        .sec-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            gap: 28px;
+            margin-bottom: 27px
+        }
+
+        .kicker {
+            font-size: .69rem;
+            letter-spacing: .16em;
+            text-transform: uppercase;
+            color: var(--mint);
+            font-weight: 850
+        }
+
+        h2 {
+            font-size: clamp(2rem, 4vw, 3.4rem);
+            line-height: 1.06;
+            letter-spacing: -.06em;
+            margin: 10px 0 0
+        }
+
+        .sec-head p {
+            max-width: 480px;
+            color: var(--muted);
+            font-size: .87rem;
+            line-height: 1.8;
+            margin: 0
+        }
+
+        .section-num {
+            color: #294158;
+            font-size: 3.6rem;
+            font-weight: 900;
+            letter-spacing: -.08em;
+            line-height: .8
+        }
+
+        .architecture-shell {
+            border: 1px solid #2c4962;
+            border-radius: 24px;
+            background: linear-gradient(135deg, #0b1726, #091321);
+            overflow: hidden;
+            box-shadow: 0 30px 100px #0008, inset 0 1px #ffffff09;
+            width: 100%
+        }
+
+        .diagram-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding: 15px 18px;
+            border-bottom: 1px solid #ffffff12;
+            background: #ffffff02
+        }
+
+        .toolbar-label {
+            font-size: .75rem;
+            font-weight: 800
+        }
+
+        .toolbar-label small {
+            display: block;
+            color: var(--muted);
+            font-weight: 500;
+            font-size: .66rem
+        }
+
+        .diagram-actions {
+            display: flex;
+            gap: 7px;
+            flex-wrap: wrap
+        }
+
+        .sm-btn {
+            font-size: .67rem;
+            padding: 7px 9px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #ffffff04
+        }
+
+        .sm-btn.active,
+        .sm-btn:hover {
+            border-color: #65f5c255;
+            color: var(--mint)
+        }
+
+        .arch-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 300px;
+            min-height: 560px
+        }
+
+        .diagram-area {
+            position: relative;
+            overflow: auto;
+            padding: 34px 28px;
+            background-image: radial-gradient(#6a9cb51c 1px, transparent 1px), linear-gradient(135deg, #0d1b2b, #091421);
+            background-size: 18px 18px, 100% 100%;
+            min-height: 560px
+        }
+
+        .arch-canvas {
+            min-width: 850px;
+            width: 100%;
+            min-height: 480px;
+            display: grid;
+            grid-template-columns: .9fr 1.18fr .95fr .85fr;
+            gap: 34px;
+            align-items: center;
+            position: relative;
+            padding: 12px 5px
+        }
+
+        .arch-links {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: visible;
+            z-index: 0
+        }
+
+        .arch-links path {
+            fill: none;
+            stroke: #53738f;
+            stroke-width: 2.2;
+            stroke-dasharray: 6 7;
+            animation: dash 15s linear infinite;
+            stroke-linecap: round;
+            filter: drop-shadow(0 0 3px #60d9f21c)
+        }
+
+        .arch-links path.hot {
+            stroke: var(--mint);
+            stroke-width: 3;
+            stroke-dasharray: 9 7;
+            filter: drop-shadow(0 0 7px #65f5c288)
+        }
+
+        .arch-links .arrowhead {
+            fill: var(--mint);
+            stroke: none
+        }
+
+        .arch-links .label-bg {
+            fill: #0b1a2a;
+            stroke: #37536b;
+            stroke-width: 1
+        }
+
+        .arch-links text {
+            fill: #b7d1e1;
+            font-size: 11px;
+            font-weight: 750;
+            letter-spacing: .03em;
+            paint-order: stroke;
+            stroke: #091421;
+            stroke-width: 3px;
+            stroke-linejoin: round
+        }
+
+        @keyframes dash {
+            to {
+                stroke-dashoffset: -150
+            }
+        }
+
+        .arch-group {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px
+        }
+
+        .group-label {
+            font-size: .61rem;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: #7793ac;
+            font-weight: 850;
+            margin: 0 0 2px 3px
+        }
+
+        .node {
+            position: relative;
+            text-align: left;
+            padding: 14px 12px;
+            border-radius: 13px;
+            border: 1px solid #29445c;
+            background: linear-gradient(145deg, #13263a, #0d1b2c);
+            transition: .25s;
+            cursor: pointer;
+            min-height: 76px;
+            z-index: 3;
+            box-shadow: 0 9px 20px #0002
+        }
+
+        .node:hover,
+        .node.selected {
+            border-color: var(--mint);
+            transform: translateY(-2px);
+            box-shadow: 0 0 0 3px #65f5c20b, 0 12px 24px #0003
+        }
+
+        .node.selected:after {
+            content: "SELECTED";
+            position: absolute;
+            right: 7px;
+            top: 6px;
+            font-size: .47rem;
+            letter-spacing: .1em;
+            color: var(--mint)
+        }
+
+        .node .node-top {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 5px
+        }
+
+        .node-icon {
+            width: 26px;
+            height: 26px;
+            border-radius: 8px;
+            background: #60d9f215;
+            color: var(--cyan);
+            display: grid;
+            place-items: center;
+            flex: none
+        }
+
+        .node-icon svg {
+            width: 14px;
+            height: 14px
+        }
+
+        .node b {
+            font-size: .68rem;
+            line-height: 1.25
+        }
+
+        .node small {
+            display: block;
+            color: #8ba3b9;
+            font-size: .59rem;
+            line-height: 1.5
+        }
+
+        .node.source {
+            border-left: 2px solid var(--cyan)
+        }
+
+        .node.process {
+            border-left: 2px solid var(--amber)
+        }
+
+        .node.db {
+            border-left: 2px solid var(--mint)
+        }
+
+        .node.bi {
+            border-left: 2px solid var(--violet)
+        }
+
+        .group-note {
+            font-size: .59rem;
+            color: #68839a;
+            padding: 5px 3px
+        }
+
+        .detail-panel {
+            border-left: 1px solid #ffffff12;
+            padding: 21px;
+            background: #0b1725;
+            display: flex;
+            flex-direction: column
+        }
+
+        .detail-label {
+            color: var(--mint);
+            font-size: .61rem;
+            text-transform: uppercase;
+            letter-spacing: .14em;
+            font-weight: 850
+        }
+
+        .detail-panel h3 {
+            font-size: 1.08rem;
+            letter-spacing: -.03em;
+            margin: 10px 0
+        }
+
+        .detail-panel p {
+            font-size: .76rem;
+            color: var(--muted);
+            line-height: 1.75;
+            margin: 0
+        }
+
+        .detail-list {
+            display: grid;
+            gap: 9px;
+            margin-top: 18px
+        }
+
+        .detail-item {
+            padding: 10px;
+            border: 1px solid #ffffff10;
+            border-radius: 10px;
+            background: #ffffff02
+        }
+
+        .detail-item small {
+            display: block;
+            color: #718ba4;
+            font-size: .6rem;
+            text-transform: uppercase;
+            letter-spacing: .1em
+        }
+
+        .detail-item b {
+            display: block;
+            font-size: .71rem;
+            margin-top: 3px;
+            overflow-wrap: anywhere
+        }
+
+        .detail-footer {
+            margin-top: auto;
+            padding-top: 17px;
+            color: #668199;
+            font-size: .63rem;
+            line-height: 1.6
+        }
+
+        .data-controls {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 14px
+        }
+
+        .data-controls button {
+            padding: 9px 12px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: #ffffff03;
+            color: #91a8bf;
+            font-size: .73rem;
+            font-weight: 750
+        }
+
+        .data-controls button.active {
+            background: #65f5c211;
+            color: var(--mint);
+            border-color: #65f5c255
+        }
+
+        .model-shell {
+            border: 1px solid #2c4962;
+            border-radius: 24px;
+            overflow: hidden;
+            background: #0a1523;
+            box-shadow: 0 30px 100px #0008;
+            width: 100%
+        }
+
+        .model-top {
+            padding: 15px 18px;
+            border-bottom: 1px solid #ffffff12;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap
+        }
+
+        .model-top b {
+            font-size: .8rem
+        }
+
+        .model-top small {
+            color: var(--muted);
+            font-size: .68rem
+        }
+
+        .model-workspace {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 300px;
+            min-height: 620px
+        }
+
+        .model-canvas {
+            padding: 28px;
+            overflow: auto;
+            background-image: radial-gradient(#6a9cb51c 1px, transparent 1px), linear-gradient(135deg, #0c1a2a, #091421);
+            background-size: 18px 18px, 100% 100%;
+            min-height: 620px
+        }
+
+        .erd {
+            min-width: 880px;
+            width: 100%;
+            min-height: 560px;
+            position: relative;
+            display: grid;
+            grid-template-columns: .92fr 1.12fr 1.12fr;
+            grid-template-rows: auto auto auto;
+            gap: 24px 54px;
+            padding: 12px 18px 22px;
+            align-items: start
+        }
+
+        .erd-links {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: visible
+        }
+
+        .erd-links path {
+            fill: none;
+            stroke: #6b8ba8;
+            stroke-width: 2.2;
+            stroke-dasharray: 6 6;
+            animation: dash 18s linear infinite;
+            stroke-linecap: round;
+            filter: drop-shadow(0 0 4px #60d9f224)
+        }
+
+        .erd-links path.active-rel {
+            stroke: var(--mint);
+            stroke-width: 3;
+            filter: drop-shadow(0 0 7px #65f5c277)
+        }
+
+        .erd-links .rel-arrow {
+            fill: var(--mint);
+            stroke: none
+        }
+
+        .erd-links .rel-label-bg {
+            fill: #0a1725;
+            stroke: #3d5d78;
+            stroke-width: 1
+        }
+
+        .erd-links text {
+            fill: #d4e7f4;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .03em;
+            paint-order: stroke;
+            stroke: #091421;
+            stroke-width: 3px;
+            stroke-linejoin: round
+        }
+
+        .entity {
+            position: relative;
+            z-index: 3;
+            border: 1px solid #30475d;
+            border-radius: 14px;
+            background: linear-gradient(145deg, #112237, #0b1727);
+            overflow: hidden;
+            cursor: pointer;
+            transition: .22s;
+            align-self: start;
+            box-shadow: 0 12px 26px #0003
+        }
+
+        .entity:hover,
+        .entity.selected {
+            border-color: var(--mint);
+            box-shadow: 0 0 0 3px #65f5c218, 0 16px 36px #0007;
+            transform: translateY(-3px)
+        }
+
+        .entity-head {
+            padding: 11px 12px;
+            background: #142b40;
+            border-bottom: 1px solid #ffffff10;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px
+        }
+
+        .entity-head b {
+            font-size: .74rem
+        }
+
+        .entity-head span {
+            font-size: .54rem;
+            letter-spacing: .09em;
+            color: var(--mint);
+            border: 1px solid #65f5c229;
+            padding: 3px 5px;
+            border-radius: 5px
+        }
+
+        .fields {
+            padding: 7px 0
+        }
+
+        .field {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 5px 11px;
+            font-size: .62rem;
+            color: #a5b9cb
+        }
+
+        .field em {
+            font-style: normal;
+            color: #637f98;
+            font-size: .55rem
+        }
+
+        .field.pk {
+            color: #f3d39a
+        }
+
+        .field.fk {
+            color: #85e9f7
+        }
+
+        .field .key {
+            font-weight: 900;
+            margin-right: 5px
+        }
+
+        .entity-footer {
+            padding: 7px 11px;
+            border-top: 1px solid #ffffff0b;
+            color: #69849b;
+            font-size: .55rem
+        }
+
+        .e-date {
+            grid-column: 1;
+            grid-row: 1
+        }
+
+        .e-patient {
+            grid-column: 1;
+            grid-row: 2
+        }
+
+        .e-visit {
+            grid-column: 2;
+            grid-row: 1
+        }
+
+        .e-lab {
+            grid-column: 3;
+            grid-row: 1
+        }
+
+        .e-doctor {
+            grid-column: 2;
+            grid-row: 2
+        }
+
+        .e-diagnosis {
+            grid-column: 3;
+            grid-row: 2
+        }
+
+        .e-test {
+            grid-column: 3;
+            grid-row: 3
+        }
+
+        .erd {
+            grid-template-rows: auto auto auto
+        }
+
+        .model-info {
+            border-left: 1px solid #ffffff12;
+            background: #0b1725;
+            padding: 20px;
+            display: flex;
+            flex-direction: column
+        }
+
+        .model-info h3 {
+            font-size: 1.03rem;
+            margin: 10px 0
+        }
+
+        .model-info p {
+            color: var(--muted);
+            font-size: .76rem;
+            line-height: 1.75
+        }
+
+        .model-info .badge-row {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 10px
+        }
+
+        .badge {
+            padding: 5px 7px;
+            border: 1px solid #ffffff14;
+            border-radius: 7px;
+            color: #9fb6ca;
+            font-size: .6rem
+        }
+
+        .model-info .rule {
+            border-top: 1px solid #ffffff10;
+            margin: 16px 0
+        }
+
+        .grain {
+            padding: 12px;
+            border-radius: 10px;
+            background: #65f5c209;
+            border: 1px solid #65f5c21d;
+            margin-top: 12px
+        }
+
+        .grain small {
+            display: block;
+            color: var(--mint);
+            font-size: .6rem;
+            text-transform: uppercase;
+            letter-spacing: .12em
+        }
+
+        .grain b {
+            display: block;
+            font-size: .73rem;
+            margin-top: 4px
+        }
+
+        .legend {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            font-size: .65rem;
+            color: #839bb1;
+            padding: 13px 18px;
+            border-top: 1px solid #ffffff10
+        }
+
+        .legend span {
+            display: flex;
+            align-items: center;
+            gap: 6px
+        }
+
+        .legend i {
+            width: 7px;
+            height: 7px;
+            border-radius: 2px
+        }
+
+        .legend .pk {
+            background: var(--amber)
+        }
+
+        .legend .fk {
+            background: var(--cyan)
+        }
+
+        .legend .rel {
+            background: #58758d
+        }
+
+        .tabs-row {
+            display: flex;
+            gap: 7px;
+            flex-wrap: wrap;
+            margin: 15px 0
+        }
+
+        .tab {
+            border: 1px solid var(--line);
+            border-radius: 9px;
+            background: #ffffff03;
+            color: #91a8bf;
+            padding: 8px 11px;
+            font-size: .7rem;
+            font-weight: 750
+        }
+
+        .tab.active {
+            color: var(--mint);
+            border-color: #65f5c255;
+            background: #65f5c20c
+        }
+
+        .schema-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-top: 18px
+        }
+
+        .schema-card {
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 17px;
+            background: #ffffff03
+        }
+
+        .schema-card h4 {
+            margin: 0 0 7px;
+            font-size: .81rem
+        }
+
+        .schema-card p {
+            margin: 0;
+            color: var(--muted);
+            font-size: .73rem;
+            line-height: 1.7
+        }
+
+        .schema-card code {
+            color: #9af8d5
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 13px
+        }
+
+        .control-card {
+            padding: 20px;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: linear-gradient(145deg, #0f2031, #0a1522)
+        }
+
+        .control-card .cicon {
+            width: 36px;
+            height: 36px;
+            border-radius: 11px;
+            background: #65f5c212;
+            color: var(--mint);
+            display: grid;
+            place-items: center;
+            font-size: 1rem;
+            margin-bottom: 14px
+        }
+
+        .control-card h3 {
+            font-size: .85rem;
+            margin: 0 0 7px
+        }
+
+        .control-card p {
+            font-size: .74rem;
+            color: var(--muted);
+            line-height: 1.75;
+            margin: 0
+        }
+
+        .control-card small {
+            display: inline-block;
+            margin-top: 12px;
+            color: #9cf8d6;
+            font-size: .61rem;
+            border: 1px solid #65f5c21f;
+            padding: 4px 6px;
+            border-radius: 6px
+        }
+
+        .privacy {
+            margin-top: 18px;
+            border: 1px solid #a99aff2d;
+            background: #a99aff08;
+            border-radius: 14px;
+            padding: 17px 19px;
+            display: flex;
+            gap: 14px;
+            align-items: flex-start
+        }
+
+        .privacy .shield {
+            width: 37px;
+            height: 37px;
+            display: grid;
+            place-items: center;
+            background: #a99aff14;
+            color: var(--violet);
+            border-radius: 11px;
+            flex: none
+        }
+
+        .privacy b {
+            font-size: .8rem
+        }
+
+        .privacy p {
+            margin: 4px 0 0;
+            color: var(--muted);
+            font-size: .73rem;
+            line-height: 1.7
+        }
+
+        .stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px
+        }
+
+        .stack span {
+            padding: 9px 11px;
+            border: 1px solid var(--line);
+            border-radius: 9px;
+            color: #b7c8d9;
+            background: #ffffff03;
+            font-size: .72rem
+        }
+
+        .stack span:before {
+            content: "";
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: var(--mint);
+            border-radius: 2px;
+            margin-right: 8px
+        }
+
+        .cta {
+            margin: 30px 0 75px;
+            padding: 30px;
+            border: 1px solid #65f5c229;
+            border-radius: 20px;
+            background: radial-gradient(ellipse at 90% 0%, #60d9f21b, transparent 42%), linear-gradient(130deg, #102638, #0a1522);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px
+        }
+
+        .cta h2 {
+            font-size: clamp(1.8rem, 3vw, 2.7rem);
+            max-width: 650px
+        }
+
+        .cta p {
+            font-size: .8rem;
+            color: var(--muted);
+            max-width: 630px
+        }
+
+        .note {
+            font-size: .7rem;
+            color: #7e95aa;
+            line-height: 1.7;
+            margin: 0 0 35px;
+            padding: 12px 15px;
+            border-left: 2px solid var(--amber);
+            background: #ffc77808;
+            border-radius: 0 9px 9px 0
+        }
+
+        .footer {
+            border-top: 1px solid #ffffff12;
+            padding: 25px 0 32px;
+            color: #71869d;
+            font-size: .7rem
+        }
+
+        .footer-inner {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            flex-wrap: wrap
+        }
+
+        .footer a:hover {
+            color: var(--mint)
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(18px);
+            transition: .7s ease
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: none
+        }
+
+        .toast {
+            position: fixed;
+            z-index: 50;
+            bottom: 20px;
+            left: 50%;
+            transform: translate(-50%, 18px);
+            opacity: 0;
+            pointer-events: none;
+            background: #132b3d;
+            border: 1px solid #65f5c244;
+            border-radius: 10px;
+            padding: 11px 15px;
+            font-size: .75rem;
+            transition: .25s;
+            box-shadow: var(--shadow)
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translate(-50%, 0)
+        }
+
+        @media(max-width:1200px) {
+            .arch-layout {
+                grid-template-columns: minmax(0, 1fr) 280px
+            }
+
+            .model-workspace {
+                grid-template-columns: minmax(0, 1fr) 280px
+            }
+
+            .diagram-area {
+                padding: 24px 16px
+            }
+
+            .model-canvas {
+                padding: 20px
+            }
+        }
+
+        @media(max-width:950px) {
+            .hero {
+                grid-template-columns: 1fr;
+                gap: 38px;
+                padding-top: 55px
+            }
+
+            .hero-copy {
+                max-width: 720px
+            }
+
+            .visual {
+                max-width: 750px;
+                width: 100%;
+                margin: auto
+            }
+
+            .arch-layout,
+            .model-workspace {
+                grid-template-columns: 1fr
+            }
+
+            .detail-panel,
+            .model-info {
+                border-left: 0;
+                border-top: 1px solid #ffffff12;
+                min-height: auto
+            }
+
+            .detail-footer {
+                margin-top: 15px
+            }
+
+            .arch-canvas {
+                min-width: 680px
+            }
+
+            .model-info {
+                padding: 18px
+            }
+
+            .sec-head {
+                align-items: flex-start;
+                flex-direction: column
+            }
+
+            .controls-grid {
+                grid-template-columns: repeat(2, 1fr)
+            }
+        }
+
+        @media(max-width:640px) {
+            .shell {
+                width: calc(100% - 26px)
+            }
+
+            .nav {
+                height: 62px
+            }
+
+            .links {
+                display: none;
+                position: absolute;
+                left: 13px;
+                right: 13px;
+                top: 61px;
+                background: #0c1929;
+                border: 1px solid var(--line);
+                border-radius: 13px;
+                padding: 12px;
+                flex-direction: column;
+                gap: 0
+            }
+
+            .links.open {
+                display: flex
+            }
+
+            .links a {
+                padding: 10px
+            }
+
+            .navright>.btn {
+                display: none
+            }
+
+            .menu {
+                display: block
+            }
+
+            .hero {
+                padding: 45px 0 30px;
+                min-height: auto
+            }
+
+            h1 {
+                font-size: clamp(2.8rem, 13vw, 4rem)
+            }
+
+            .hero p {
+                font-size: .9rem
+            }
+
+            .mini-stats {
+                gap: 6px
+            }
+
+            .mini-stat {
+                padding: 9px
+            }
+
+            .mini-stat b {
+                font-size: 1.15rem
+            }
+
+            .flow-preview {
+                padding: 10px
+            }
+
+            .flowline {
+                gap: 2px
+            }
+
+            .flowstep .ico {
+                width: 32px;
+                height: 32px
+            }
+
+            .flowstep:not(:last-child):after {
+                left: calc(50% + 18px);
+                top: 15px
+            }
+
+            .flowstep:not(:last-child):before {
+                top: 4px
+            }
+
+            .flowstep b {
+                font-size: .56rem
+            }
+
+            .flowstep small {
+                font-size: .5rem
+            }
+
+            .float-chip {
+                right: 2px;
+                bottom: -25px
+            }
+
+            .quicknav {
+                margin-top: 38px;
+                margin-bottom: 30px
+            }
+
+            .quicknav a {
+                min-width: calc(50% - 6px);
+                padding: 11px
+            }
+
+            .section {
+                padding: 37px 0 45px
+            }
+
+            .section-num {
+                display: none
+            }
+
+            .diagram-toolbar {
+                align-items: flex-start;
+                flex-direction: column
+            }
+
+            .diagram-area {
+                padding: 15px 10px
+            }
+
+            .arch-canvas {
+                min-width: 640px
+            }
+
+            .model-canvas {
+                padding: 10px
+            }
+
+            .erd {
+                min-width: 700px;
+                gap: 20px 30px
+            }
+
+            .controls-grid {
+                grid-template-columns: 1fr
+            }
+
+            .schema-info {
+                grid-template-columns: 1fr
+            }
+
+            .cta {
+                align-items: flex-start;
+                flex-direction: column;
+                padding: 22px
+            }
+
+            .cta .btn {
+                width: 100%
+            }
+
+            .footer-inner {
+                flex-direction: column
+            }
+
+            .model-top {
+                align-items: flex-start;
+                flex-direction: column
+            }
+        }
+
+        @media(prefers-reduced-motion:reduce) {
+
+            *,
+            *::before,
+            *::after {
+                animation: none !important;
+                transition: none !important;
+                scroll-behavior: auto !important
+            }
+
+            .reveal {
+                opacity: 1;
+                transform: none
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-grid"></div>
+    <div class="aurora"></div>
+    <div class="aurora two"></div>
+    <header class="top">
+        <div class="shell nav">
+            <a class="brand" href="#home"><span class="logo"><svg viewBox="0 0 24 24" fill="none">
+                        <path d="M12 3v18M3 12h18" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
+                        <path d="m5 5 14 14M19 5 5 19" stroke="currentColor" stroke-width="1" opacity=".35" />
+                    </svg></span><span>MediFlow<small>Healthcare data engineering</small></span></a>
+            <nav class="links" id="links"><a href="#architecture">Architecture</a><a href="#data-model">Data model</a><a
+                    href="#quality">Data quality</a><a href="#stack">Tech stack</a></nav>
+            <div class="navright"><a class="btn" href="https://github.com/Saikot313/MediFlow-Healthcare-ETL-Pipeline"
+                    target="_blank" rel="noopener">↗ Repository</a><a class="btn primary" href="#architecture">Explore
+                    system ↓</a><button class="menu" id="menu" aria-label="Toggle navigation"
+                    aria-expanded="false">☰</button></div>
+        </div>
+    </header>
+    <main id="home">
+        <div class="shell">
+            <section class="hero">
+                <div>
+                    <div class="eyebrow"><i class="pulse"></i> Interactive system blueprint</div>
+                    <h1>Healthcare data,<br><span class="shine">engineered to flow.</span></h1>
+                    <p><b>MediFlow</b> is a production-style batch ETL and data warehouse project that transforms
+                        synthetic daily hospital files into a structured PostgreSQL star schema. Explore the real design
+                        concepts behind the pipeline—from Airflow task dependencies and quality gates to fact tables,
+                        slowly changing dimensions, and a privacy-aware BI layer.</p>
+                    <div class="hero-cta"><a class="btn primary" href="#architecture">Explore architecture
+                            <span>↘</span></a><a class="btn" href="#data-model">Inspect data model <span>↘</span></a>
+                    </div>
+                    <div class="microline"><span>●</span> Python · Apache Airflow 2.10 · PostgreSQL 16 · All data
+                        synthetic</div>
+                </div>
+                <div class="visual">
+                    <div class="window">
+                        <div class="window-head">
+                            <div class="dots"><i></i><i></i><i></i></div>
+                            <div class="win-title">MEDIFLOW / SYSTEM MAP</div>
+                            <div class="mini-live">● EXPLORER</div>
+                        </div>
+                        <div class="window-body">
+                            <div class="window-title">
+                                <div><b>Daily data journey</b><small>From source drop to analytics mart</small></div>
+                                <span class="live-pill">BATCH ETL</span>
+                            </div>
+                            <div class="mini-stats">
+                                <div class="mini-stat"><small>Source domains</small><b data-count="4">0</b><span>daily
+                                        CSV files</span></div>
+                                <div class="mini-stat"><small>Fact tables</small><b data-count="2">0</b><span>visit +
+                                        lab order</span></div>
+                                <div class="mini-stat"><small>DQ outcomes</small><b>3</b><span>reject / warn /
+                                        fail</span></div>
+                            </div>
+                            <div class="flow-preview">
+                                <h4>Pipeline overview <span>Conceptual flow · click detailed map below</span></h4>
+                                <div class="flowline">
+                                    <div class="flowstep">
+                                        <div class="ico"><svg viewBox="0 0 24 24" fill="none">
+                                                <path d="M4 5h16v14H4zM8 9h8M8 13h8" stroke="currentColor"
+                                                    stroke-width="1.6" stroke-linecap="round" />
+                                            </svg></div><b>Sources</b><small>Daily CSV</small>
+                                    </div>
+                                    <div class="flowstep">
+                                        <div class="ico"><svg viewBox="0 0 24 24" fill="none">
+                                                <path d="M12 3 3 20h18L12 3Z" stroke="currentColor"
+                                                    stroke-width="1.6" />
+                                                <path d="M12 9v4m0 3h.01" stroke="currentColor" stroke-width="1.6" />
+                                            </svg></div><b>Validate</b><small>pandas + DQ</small>
+                                    </div>
+                                    <div class="flowstep">
+                                        <div class="ico"><svg viewBox="0 0 24 24" fill="none">
+                                                <ellipse cx="12" cy="5" rx="8" ry="3" stroke="currentColor"
+                                                    stroke-width="1.6" />
+                                                <path d="M4 5v14c0 4 16 4 16 0V5M4 12c0 4 16 4 16 0"
+                                                    stroke="currentColor" stroke-width="1.6" />
+                                            </svg></div><b>Warehouse</b><small>Star schema</small>
+                                    </div>
+                                    <div class="flowstep">
+                                        <div class="ico"><svg viewBox="0 0 24 24" fill="none">
+                                                <path d="M4 19V5m0 14h16" stroke="currentColor" stroke-width="1.6" />
+                                                <path d="m7 15 4-4 3 2 5-7" stroke="currentColor" stroke-width="1.7" />
+                                            </svg></div><b>Reconcile</b><small>Audit checks</small>
+                                    </div>
+                                    <div class="flowstep">
+                                        <div class="ico"><svg viewBox="0 0 24 24" fill="none">
+                                                <path d="M4 5h16v14H4zM8 9h8M8 13h5" stroke="currentColor"
+                                                    stroke-width="1.6" />
+                                            </svg></div><b>BI mart</b><small>Metabase</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="window-foot"><span>◈ Orchestrated by
+                                    <b>mediflow_daily_etl</b></span><span>Idempotent · Auditable · De-identified</span>
+                            </div>
+                        </div>
+                        <div class="float-chip"><small>Warehouse philosophy</small><b>Trust every
+                                transformation.</b><br><span>Validate → model → reconcile</span></div>
+                    </div>
+            </section>
+            <div class="quicknav reveal"><a href="#architecture"><span class="qn">01</span><span><b>Architecture
+                            explorer</b><small>Click nodes to inspect pipeline layers</small></span></a><a
+                    href="#data-model"><span class="qn">02</span><span><b>Dimensional data model</b><small>Inspect
+                            facts, dimensions and keys</small></span></a><a href="#quality"><span
+                        class="qn">03</span><span><b>Quality & governance</b><small>See reject, warn and fail
+                            behavior</small></span></a></div>
+
+            <section id="architecture" class="section reveal">
+                <div class="sec-head">
+                    <div>
+                        <div class="kicker">01 / System architecture</div>
+                        <h2>A pipeline you can<br><span class="shine">explore, not just read.</span></h2>
+                    </div>
+                    <p>The diagram follows the README architecture: daily CSV source files feed an Airflow DAG, which
+                        validates and loads data into PostgreSQL staging, dimensions, facts, audit tables, and the
+                        PII-free mart. Select a node to reveal its role.</p>
+                </div>
+                <div class="architecture-shell">
+                    <div class="diagram-toolbar">
+                        <div class="toolbar-label">End-to-end batch architecture <small>Choose any component on the
+                                diagram</small></div>
+                        <div class="diagram-actions"><button class="sm-btn active" data-arch-mode="all">Full
+                                system</button><button class="sm-btn" data-arch-mode="etl">ETL tasks</button><button
+                                class="sm-btn" data-arch-mode="warehouse">Warehouse</button></div>
+                    </div>
+                    <div class="arch-layout">
+                        <div class="diagram-area">
+                            <div class="arch-canvas" id="archCanvas">
+                                <svg class="arch-links" id="archLinks" aria-hidden="true"></svg>
+                                <div class="arch-group" data-group="sources">
+                                    <div class="group-label">01 · Source files</div>
+                                    <button class="node source selected" data-node="sources"><span
+                                            class="node-top"><span class="node-icon">▤</span><b>Daily CSV
+                                                drop</b></span><small>patients · doctors<br>visits ·
+                                            lab_tests</small></button>
+                                    <button class="node source" data-node="reference"><span class="node-top"><span
+                                                class="node-icon">⌘</span><b>Reference
+                                                data</b></span><small>lab_catalog<br>diagnoses</small></button>
+                                    <div class="group-note">All source data is synthetic</div>
+                                </div>
+                                <div class="arch-group" data-group="etl">
+                                    <div class="group-label">02 · Airflow DAG</div>
+                                    <button class="node process" data-node="init"><span class="node-top"><span
+                                                class="node-icon">01</span><b>init_warehouse</b></span><small>Idempotent
+                                            schema setup</small></button>
+                                    <button class="node process" data-node="sensor"><span class="node-top"><span
+                                                class="node-icon">02</span><b>wait_for_source_files</b></span><small>PythonSensor
+                                            · reschedule</small></button>
+                                    <button class="node process" data-node="validate"><span class="node-top"><span
+                                                class="node-icon">03</span><b>extract_and_validate</b></span><small>pandas
+                                            · DQ rules</small></button>
+                                    <button class="node process" data-node="staging"><span class="node-top"><span
+                                                class="node-icon">04</span><b>load_staging</b></span><small>PostgreSQL
+                                            COPY</small></button>
+                                    <button class="node process" data-node="dimensions"><span class="node-top"><span
+                                                class="node-icon">05</span><b>load_dimensions</b></span><small>SCD Type
+                                            1 + Type 2</small></button>
+                                    <button class="node process" data-node="facts"><span class="node-top"><span
+                                                class="node-icon">06</span><b>load_facts</b></span><small>Natural-key
+                                            upserts</small></button>
+                                    <button class="node process" data-node="reconcile"><span class="node-top"><span
+                                                class="node-icon">07</span><b>reconcile</b></span><small>Counts + SCD2
+                                            integrity</small></button>
+                                </div>
+                                <div class="arch-group" data-group="warehouse">
+                                    <div class="group-label">03 · PostgreSQL 16</div>
+                                    <button class="node db" data-node="stgdb"><span class="node-top"><span
+                                                class="node-icon">▤</span><b>staging</b></span><small>Batch-scoped clean
+                                            rows</small></button>
+                                    <button class="node db" data-node="dwh"><span class="node-top"><span
+                                                class="node-icon">◉</span><b>dwh</b></span><small>Star schema<br>facts +
+                                            dimensions</small></button>
+                                    <button class="node db" data-node="audit"><span class="node-top"><span
+                                                class="node-icon">≋</span><b>audit</b></span><small>etl_run_log ·
+                                            dq_results<br>rejected_rows</small></button>
+                                </div>
+                                <div class="arch-group" data-group="bi">
+                                    <div class="group-label">04 · Consumption</div>
+                                    <button class="node bi" data-node="mart"><span class="node-top"><span
+                                                class="node-icon">◈</span><b>mart</b></span><small>De-identified
+                                            views</small></button>
+                                    <button class="node bi" data-node="metabase"><span class="node-top"><span
+                                                class="node-icon">▥</span><b>Metabase</b></span><small>Optional BI
+                                            profile<br>role: bi_reader</small></button>
+                                    <div class="group-note">Read-only · PII-free layer</div>
+                                </div>
+                            </div>
+                        </div>
+                        <aside class="detail-panel" aria-live="polite">
+                            <div class="detail-label" id="detailLabel">Selected component · Source</div>
+                            <h3 id="detailTitle">Daily CSV source drop</h3>
+                            <p id="detailDesc">The pipeline expects one batch of synthetic hospital source files per
+                                date. The daily files represent patient, doctor, visit, and laboratory activity.</p>
+                            <div class="detail-list">
+                                <div class="detail-item"><small>Inputs</small><b id="detailInputs">patients.csv ·
+                                        doctors.csv · visits.csv · lab_tests.csv</b></div>
+                                <div class="detail-item"><small>Responsibility</small><b id="detailResp">Provide the
+                                        daily source batch</b></div>
+                                <div class="detail-item"><small>Design note</small><b id="detailNote">Batch date is
+                                        passed between Airflow tasks</b></div>
+                            </div>
+                            <div class="detail-footer">Architecture reproduced from the repository README. Select other
+                                nodes to inspect their documented responsibilities.</div>
+                        </aside>
+                    </div>
+                    <div class="legend"><span><i style="background:var(--cyan)"></i> Source systems</span><span><i
+                                style="background:var(--amber)"></i> Airflow tasks</span><span><i
+                                style="background:var(--mint)"></i> PostgreSQL storage</span><span><i
+                                style="background:var(--violet)"></i> BI / reporting</span><span>Dashed connectors
+                            represent logical data or task flow.</span></div>
+                </div>
+            </section>
+
+            <section id="data-model" class="section reveal">
+                <div class="sec-head">
+                    <div>
+                        <div class="kicker">02 / Dimensional data model</div>
+                        <h2>Star schema.<br><span class="shine">Visible relationships.</span></h2>
+                    </div>
+                    <p>Explore the Kimball-style model documented in the README. The two fact tables have distinct
+                        grains and share conformed dimensions; patient facts use the patient dimension version valid on
+                        the visit date.</p>
+                </div>
+                <div class="data-controls"><button class="active" data-model-filter="all">Full model</button><button
+                        data-model-filter="facts">Fact tables</button><button
+                        data-model-filter="dimensions">Dimensions</button><button data-model-filter="history">SCD Type 2
+                        history</button></div>
+                <div class="model-shell">
+                    <div class="model-top">
+                        <div><b>Warehouse ERD · PostgreSQL</b><br><small>Click an entity to inspect its grain, keys and
+                                role</small></div><span class="live-pill">KIMBALL STAR SCHEMA</span>
+                    </div>
+                    <div class="model-workspace">
+                        <div class="model-canvas">
+                            <div class="erd" id="erd">
+                                <svg class="erd-links" id="erdLinks" aria-hidden="true"></svg>
+                                <article class="entity e-date" data-entity="dim_date">
+                                    <div class="entity-head"><b>dim_date</b><span>DIMENSION</span></div>
+                                    <div class="fields">
+                                        <div class="field pk"><span><i class="key">PK</i> date_key</span><em>INT</em>
+                                        </div>
+                                        <div class="field"><span>calendar_date</span><em>DATE</em></div>
+                                        <div class="field"><span>month / year</span><em>ATTRS</em></div>
+                                    </div>
+                                    <div class="entity-footer">Conformed date dimension</div>
+                                </article>
+                                <article class="entity e-patient selected" data-entity="dim_patient">
+                                    <div class="entity-head"><b>dim_patient</b><span>SCD TYPE 2</span></div>
+                                    <div class="fields">
+                                        <div class="field pk"><span><i class="key">PK</i>
+                                                patient_key</span><em>BIGINT</em></div>
+                                        <div class="field"><span>patient_id</span><em>BUSINESS KEY</em></div>
+                                        <div class="field"><span>city · insurance_type</span><em>ATTRS</em></div>
+                                        <div class="field"><span>valid_from · valid_to</span><em>DATE</em></div>
+                                        <div class="field"><span>is_current</span><em>BOOL</em></div>
+                                    </div>
+                                    <div class="entity-footer">Versioned patient attributes</div>
+                                </article>
+                                <article class="entity e-visit" data-entity="fact_visits">
+                                    <div class="entity-head"><b>fact_visits</b><span>FACT</span></div>
+                                    <div class="fields">
+                                        <div class="field pk"><span><i class="key">PK</i>
+                                                visit_key</span><em>BIGINT</em></div>
+                                        <div class="field"><span>visit_id</span><em>UNIQUE</em></div>
+                                        <div class="field fk"><span><i class="key">FK</i> date_key</span><em>INT</em>
+                                        </div>
+                                        <div class="field fk"><span><i class="key">FK</i>
+                                                patient_key</span><em>BIGINT</em></div>
+                                        <div class="field fk"><span><i class="key">FK</i>
+                                                doctor_key</span><em>BIGINT</em></div>
+                                        <div class="field fk"><span><i class="key">FK</i>
+                                                diagnosis_key</span><em>INT</em></div>
+                                        <div class="field"><span>net_amount · status</span><em>MEASURES</em></div>
+                                    </div>
+                                    <div class="entity-footer">Grain: one row per visit</div>
+                                </article>
+                                <article class="entity e-lab" data-entity="fact_lab_tests">
+                                    <div class="entity-head"><b>fact_lab_tests</b><span>FACT</span></div>
+                                    <div class="fields">
+                                        <div class="field pk"><span><i class="key">PK</i> lab_key</span><em>BIGINT</em>
+                                        </div>
+                                        <div class="field"><span>lab_order_id</span><em>UNIQUE</em></div>
+                                        <div class="field fk"><span><i class="key">FK</i>
+                                                visit_key</span><em>BIGINT</em></div>
+                                        <div class="field fk"><span><i class="key">FK</i> test_key</span><em>BIGINT</em>
+                                        </div>
+                                        <div class="field"><span>turnaround_minutes</span><em>MEASURE</em></div>
+                                        <div class="field"><span>result_flag</span><em>STATUS</em></div>
+                                    </div>
+                                    <div class="entity-footer">Grain: one row per lab order</div>
+                                </article>
+                                <article class="entity e-doctor" data-entity="dim_doctor">
+                                    <div class="entity-head"><b>dim_doctor</b><span>SCD TYPE 1</span></div>
+                                    <div class="fields">
+                                        <div class="field pk"><span><i class="key">PK</i>
+                                                doctor_key</span><em>BIGINT</em></div>
+                                        <div class="field"><span>doctor_id</span><em>BUSINESS KEY</em></div>
+                                        <div class="field"><span>department</span><em>ATTRIBUTE</em></div>
+                                    </div>
+                                    <div class="entity-footer">Latest descriptive values overwrite</div>
+                                </article>
+                                <article class="entity e-diagnosis" data-entity="dim_diagnosis">
+                                    <div class="entity-head"><b>dim_diagnosis</b><span>DIMENSION</span></div>
+                                    <div class="fields">
+                                        <div class="field pk"><span><i class="key">PK</i>
+                                                diagnosis_key</span><em>INT</em></div>
+                                        <div class="field"><span>diagnosis_code</span><em>BUSINESS KEY</em></div>
+                                        <div class="field"><span>Unknown member</span><em>KEY -1</em></div>
+                                    </div>
+                                    <div class="entity-footer">Conformed diagnosis dimension</div>
+                                </article>
+                                <article class="entity e-test" data-entity="dim_test">
+                                    <div class="entity-head"><b>dim_test</b><span>DIMENSION</span></div>
+                                    <div class="fields">
+                                        <div class="field pk"><span><i class="key">PK</i> test_key</span><em>BIGINT</em>
+                                        </div>
+                                        <div class="field"><span>test_code</span><em>BUSINESS KEY</em></div>
+                                        <div class="field"><span>test_name / category</span><em>ATTRS</em></div>
+                                    </div>
+                                    <div class="entity-footer">Conformed laboratory test dimension</div>
+                                </article>
+                            </div>
+                        </div>
+                        <aside class="model-info" aria-live="polite">
+                            <div class="detail-label" id="modelLabel">Dimension · History tracking</div>
+                            <h3 id="modelTitle">dim_patient</h3>
+                            <p id="modelDesc">Tracks selected patient attributes over time with SCD Type 2. A changed
+                                attribute closes the previous version and inserts a new version.</p>
+                            <div class="badge-row" id="modelBadges"><span class="badge">SCD Type 2</span><span
+                                    class="badge">Historical versions</span><span class="badge">Point-in-time
+                                    join</span></div>
+                            <div class="rule"></div>
+                            <div class="detail-item"><small>Primary key</small><b id="modelPK">patient_key</b></div>
+                            <div class="detail-item" style="margin-top:8px"><small>Relationship / role</small><b
+                                    id="modelRole">Referenced by visit and lab facts</b></div>
+                            <div class="grain"><small>Grain / key concept</small><b id="modelGrain">One row per patient
+                                    version</b></div>
+                            <div class="detail-footer">Field examples follow the README's documented schema. Additional
+                                attributes are summarized where the README does not enumerate every column.</div>
+                        </aside>
+                    </div>
+                    <div class="legend"><span><i class="pk"></i> Primary key</span><span><i class="fk"></i> Foreign
+                            key</span><span><i class="rel"></i> Relationship connector</span><span>Visual ERD · not an
+                            interactive database connection</span></div>
+                </div>
+                <div class="schema-info">
+                    <div class="schema-card">
+                        <h4>Fact table grain</h4>
+                        <p><code>fact_visits</code> stores one row per visit. <code>fact_lab_tests</code> stores one row
+                            per lab order, linked back to the visit and test dimension.</p>
+                    </div>
+                    <div class="schema-card">
+                        <h4>Conformed dimensions</h4>
+                        <p><code>dim_date</code>, <code>dim_test</code>, and <code>dim_diagnosis</code> support
+                            consistent analysis across facts. Unknown diagnosis values map to the documented Unknown
+                            member (-1).</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="quality" class="section reveal">
+                <div class="sec-head">
+                    <div>
+                        <div class="kicker">03 / Reliability & governance</div>
+                        <h2>Make data problems<br>visible and traceable.</h2>
+                    </div>
+                    <p>The README defines three quality outcomes and explicit recovery behavior. This is the project's
+                        control design—not a live monitoring feed.</p>
+                </div>
+                <div class="controls-grid">
+                    <article class="control-card">
+                        <div class="cicon">↘</div>
+                        <h3>REJECT · Quarantine the row</h3>
+                        <p>Bad records are written to <code>audit.rejected_rows</code> with JSON and reasons, then
+                            excluded from the warehouse load.</p><small>Examples: null keys · negative fee · duplicate
+                            key</small>
+                    </article>
+                    <article class="control-card">
+                        <div class="cicon">!</div>
+                        <h3>WARN · Keep with evidence</h3>
+                        <p>The row is loaded but the issue is recorded in the data-quality results, preserving
+                            visibility without discarding all usable data.</p><small>Examples: missing city · unknown
+                            diagnosis</small>
+                    </article>
+                    <article class="control-card">
+                        <div class="cicon">×</div>
+                        <h3>FAIL · Stop the batch</h3>
+                        <p>Schema breaks and reconciliation mismatches fail the run. If the rejected ratio exceeds the
+                            configured limit, the batch fails after evidence is saved.</p><small>Default reject-ratio
+                            threshold: 20%</small>
+                    </article>
+                    <article class="control-card">
+                        <div class="cicon">↻</div>
+                        <h3>Idempotent reruns</h3>
+                        <p>Staging reloads are batch-scoped and fact rows use natural-key upserts, so rerunning a date
+                            is designed not to create duplicate facts.</p><small>Safe rerun design</small>
+                    </article>
+                    <article class="control-card">
+                        <div class="cicon">◷</div>
+                        <h3>Late-arriving lab results</h3>
+                        <p>A lab order first received as pending can be updated when its result arrives, completing the
+                            existing fact row instead of duplicating it.</p><small>Pending → Normal / High / Low</small>
+                    </article>
+                    <article class="control-card">
+                        <div class="cicon">≋</div>
+                        <h3>Reconciliation & SCD2 checks</h3>
+                        <p>Compare staged and warehouse records by business key; verify one current patient version and
+                            no gaps or overlaps in history.</p><small>Mismatch → fail the run</small>
+                    </article>
+                </div>
+                <div class="privacy">
+                    <div class="shield">◇</div>
+                    <div><b>Privacy by design · BI access is intentionally narrow</b>
+                        <p>The README describes a read-only <code>bi_reader</code> role limited to the <code>mart</code>
+                            schema. The reporting layer uses a pseudonymous patient token and age band rather than
+                            patient name or date of birth. All project data is synthetic.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="stack" class="section reveal">
+                <div class="sec-head">
+                    <div>
+                        <div class="kicker">04 / Implementation stack</div>
+                        <h2>Practical tools, clear boundaries.</h2>
+                    </div>
+                    <p>Orchestration stays in the DAG; validation and ETL logic live in a reusable Python package;
+                        set-based warehouse transformations run in PostgreSQL.</p>
+                </div>
+                <div class="stack">
+                    <span>Python</span><span>pandas</span><span>NumPy</span><span>SQLAlchemy</span><span>psycopg2</span><span>PostgreSQL
+                        16</span><span>Apache Airflow 2.10</span><span>Docker
+                        Compose</span><span>pytest</span><span>GitHub Actions</span><span>Metabase (optional)</span>
+                </div>
+                <div class="cta">
+                    <div>
+                        <div class="kicker">Read the implementation</div>
+                        <h2>See how the architecture is built in code.</h2>
+                        <p>Open the repository for Airflow DAGs, Python ETL logic, SQL schema and loaders, sample
+                            analytical queries, tests, and local Docker setup.</p>
+                    </div><a class="btn primary" href="https://github.com/Saikot313/MediFlow-Healthcare-ETL-Pipeline"
+                        target="_blank" rel="noopener">Open GitHub repository ↗</a>
+                </div>
+                <p class="note">Demo integrity note: the architecture and data model are based on the repository README.
+                    Diagrams are explanatory front-end visualizations, not live infrastructure telemetry. Metabase is an
+                    optional profile; dashboard examples in the README are suggested questions, not proof of an already
+                    deployed live dashboard. All sample data is synthetic.</p>
+            </section>
+        </div>
+    </main>
+    <footer class="footer">
+        <div class="shell footer-inner"><span>© MediFlow · Healthcare ETL Pipeline & Data Warehouse</span><span>Designed
+                as a single-file GitHub Pages showcase</span><a
+                href="https://github.com/Saikot313/MediFlow-Healthcare-ETL-Pipeline" target="_blank"
+                rel="noopener">Source repository ↗</a></div>
+    </footer>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script>
+        const archDetails = {
+            sources: { label: "Source layer · Daily batch", title: "Daily CSV source drop", desc: "The workflow consumes synthetic hospital source files for one batch date. The daily drop contains patients, doctors, visits, and laboratory tests.", inputs: "patients.csv · doctors.csv · visits.csv · lab_tests.csv", resp: "Provide source files for the batch date", note: "The DAG waits for the required files before extraction." },
+            reference: { label: "Source layer · Reference data", title: "Reference datasets", desc: "Reference files supply controlled lookup values used while interpreting laboratory and diagnosis records.", inputs: "lab_catalog · diagnoses", resp: "Support standardization and lookup mapping", note: "Unknown diagnosis codes map to an Unknown dimension member." },
+            init: { label: "Airflow task · 01", title: "init_warehouse", desc: "Initializes the database structures by running the schema SQL scripts. The setup is designed to be idempotent.", inputs: "sql/01 through sql/04", resp: "Create schemas, staging, star schema, and mart views", note: "Safe to execute repeatedly as part of initialization." },
+            sensor: { label: "Airflow task · 02", title: "wait_for_source_files", desc: "A PythonSensor checks whether the source files for the target batch date have arrived. Reschedule mode frees the worker slot while waiting.", inputs: "Daily source files · {{ ds }}", resp: "Wait for the required source batch", note: "Uses sensor reschedule mode." },
+            validate: { label: "Airflow task · 03", title: "extract_and_validate", desc: "Reads CSV values as text, standardizes common formatting variations, applies data-quality rules, and writes clean and rejected records.", inputs: "Raw CSV files for {{ ds }}", resp: "Produce clean/rejected files and save DQ results", note: "Pandas handles parsing and validation on a daily slice." },
+            staging: { label: "Airflow task · 04", title: "load_staging", desc: "Bulk loads accepted clean rows into PostgreSQL staging using COPY. The staging reload is scoped to the batch date.", inputs: "Clean daily files", resp: "Load staging records with PostgreSQL COPY", note: "Delete-then-insert per batch date supports reruns." },
+            dimensions: { label: "Airflow task · 05", title: "load_dimensions", desc: "Loads and updates dimension records, applying Type 1 overwrite behavior for doctor attributes and Type 2 history preservation for patient attributes.", inputs: "Staging records · dimension SQL", resp: "Apply SCD1 upserts and SCD2 close-and-insert", note: "Dimension changes are applied chronologically." },
+            facts: { label: "Airflow task · 06", title: "load_facts", desc: "Loads visit and laboratory fact records using natural-key upserts. Late lab results complete an existing lab order row instead of duplicating it.", inputs: "Staging + dimension keys", resp: "Upsert fact_visits and fact_lab_tests", note: "Older batch reruns are guarded against overwriting newer data." },
+            reconcile: { label: "Airflow task · 07", title: "reconcile", desc: "Compares staging and warehouse records by business key and checks patient SCD2 history integrity. Any mismatch fails the run.", inputs: "Staging rows · warehouse rows · SCD2 history", resp: "Record reconciliation results in audit", note: "Checks one current version per patient and no gaps or overlaps." },
+            stgdb: { label: "PostgreSQL · Staging", title: "staging schema", desc: "Holds batch-scoped clean records ready for warehouse dimension and fact loading.", inputs: "Validated clean daily files", resp: "Provide a consistent load boundary", note: "Staging is reloaded per batch date." },
+            dwh: { label: "PostgreSQL · Warehouse", title: "dwh star schema", desc: "Stores fact_visits and fact_lab_tests alongside conformed dimensions. Fact tables use defined grains and surrogate keys for analysis.", inputs: "Dimension and fact loaders", resp: "Serve structured analytical data", note: "Kimball-style star schema with SCD Type 1 and Type 2." },
+            audit: { label: "PostgreSQL · Audit", title: "audit schema", desc: "Maintains operational evidence for ETL runs and data-quality outcomes, including rejected records and reconciliation results.", inputs: "DQ checks · task results · reconciliation", resp: "Keep a traceable record of pipeline outcomes", note: "Rejected rows include JSON payload and reasons." },
+            mart: { label: "PostgreSQL · Reporting layer", title: "mart schema", desc: "Publishes curated views designed for BI analysis while minimizing exposure of patient-identifying attributes.", inputs: "Warehouse facts and dimensions", resp: "Provide reporting-friendly, de-identified views", note: "bi_reader is read-only and restricted to mart." },
+            metabase: { label: "BI layer · Optional", title: "Metabase dashboards", desc: "Metabase can be started with the optional bi Compose profile and connected to PostgreSQL using the restricted bi_reader role.", inputs: "mart views · optional admin audit connection", resp: "Explore daily visits, workload, lab turnaround, and other suggested questions", note: "The README lists suggested dashboard cards; this demo is not connected to a live Metabase instance." }
+        };
+        const nodes = [...document.querySelectorAll("[data-node]")], groups = [...document.querySelectorAll("[data-group]")];
+        function selectNode(key) { const d = archDetails[key]; if (!d) return; nodes.forEach(n => n.classList.toggle("selected", n.dataset.node === key)); document.getElementById("detailLabel").textContent = d.label; document.getElementById("detailTitle").textContent = d.title; document.getElementById("detailDesc").textContent = d.desc; document.getElementById("detailInputs").textContent = d.inputs; document.getElementById("detailResp").textContent = d.resp; document.getElementById("detailNote").textContent = d.note }
+        nodes.forEach(n => n.addEventListener("click", () => selectNode(n.dataset.node)));
+        document.querySelectorAll("[data-arch-mode]").forEach(b => b.addEventListener("click", () => { document.querySelectorAll("[data-arch-mode]").forEach(x => x.classList.toggle("active", x === b)); const mode = b.dataset.archMode; groups.forEach(g => { g.style.opacity = mode === "all" || (mode === "etl" && g.dataset.group === "etl") || (mode === "warehouse" && ["warehouse", "bi"].includes(g.dataset.group)) ? "1" : ".28" }); redrawDiagrams(); toast(mode === "all" ? "Showing full system" : mode === "etl" ? "Highlighting Airflow task group" : "Highlighting storage and reporting layers") }));
+        const entityDetails = {
+            dim_patient: { label: "Dimension · History tracking", title: "dim_patient", desc: "Tracks selected patient attributes over time with SCD Type 2. When a tracked attribute changes, the prior version is end-dated and a new version is inserted.", badges: ["SCD Type 2", "Historical versions", "Point-in-time join"], pk: "patient_key", role: "Referenced by visit and lab facts", grain: "One row per patient version" },
+            fact_visits: { label: "Fact table · Visit activity", title: "fact_visits", desc: "The visit fact table records one row per visit and connects date, patient, doctor, and diagnosis dimensions. Visit type and status remain on the fact as degenerate dimensions.", badges: ["FACT", "Natural key: visit_id", "Surrogate FKs"], pk: "visit_key · visit_id (unique)", role: "Many visits to one dimension member", grain: "One row per visit" },
+            fact_lab_tests: { label: "Fact table · Laboratory activity", title: "fact_lab_tests", desc: "The laboratory fact table records one row per lab order, linking the visit and test dimensions and storing turnaround and result-state measures.", badges: ["FACT", "Natural key: lab_order_id", "Late-arriving results"], pk: "lab_key · lab_order_id (unique)", role: "Many lab orders can belong to a visit", grain: "One row per lab order" },
+            dim_doctor: { label: "Dimension · Type 1 updates", title: "dim_doctor", desc: "Doctor descriptive attributes use SCD Type 1: the latest values overwrite prior values instead of retaining a historical version.", badges: ["SCD Type 1", "Latest values", "Doctor key"], pk: "doctor_key", role: "Referenced by fact_visits and fact_lab_tests", grain: "One row per doctor business key" },
+            dim_date: { label: "Dimension · Shared calendar", title: "dim_date", desc: "A conformed date dimension provides consistent date-based grouping for both visit and laboratory activity.", badges: ["Conformed dimension", "Calendar attributes"], pk: "date_key", role: "Referenced by both fact tables", grain: "One row per calendar date" },
+            dim_diagnosis: { label: "Dimension · Diagnosis lookup", title: "dim_diagnosis", desc: "Provides a diagnosis lookup for visit facts. The design includes an Unknown member with key -1 for unmapped diagnosis codes.", badges: ["Conformed dimension", "Unknown member: -1"], pk: "diagnosis_key", role: "Referenced by fact_visits", grain: "One row per diagnosis member" },
+            dim_test: { label: "Dimension · Laboratory test lookup", title: "dim_test", desc: "Provides shared descriptive information about laboratory tests for analyzing laboratory orders by test code and test attributes.", badges: ["Conformed dimension", "Lab catalog"], pk: "test_key", role: "Referenced by fact_lab_tests", grain: "One row per test member" }
+        };
+        function selectEntity(key) { const d = entityDetails[key]; if (!d) return; document.querySelectorAll("[data-entity]").forEach(e => e.classList.toggle("selected", e.dataset.entity === key)); document.getElementById("modelLabel").textContent = d.label; document.getElementById("modelTitle").textContent = d.title; document.getElementById("modelDesc").textContent = d.desc; document.getElementById("modelPK").textContent = d.pk; document.getElementById("modelRole").textContent = d.role; document.getElementById("modelGrain").textContent = d.grain; document.getElementById("modelBadges").innerHTML = d.badges.map(x => `<span class="badge">${x}</span>`).join("") }
+        document.querySelectorAll("[data-entity]").forEach(e => e.addEventListener("click", () => selectEntity(e.dataset.entity)));
+        document.querySelectorAll("[data-model-filter]").forEach(b => b.addEventListener("click", () => { document.querySelectorAll("[data-model-filter]").forEach(x => x.classList.toggle("active", x === b)); const mode = b.dataset.modelFilter; document.querySelectorAll("[data-entity]").forEach(e => { const fact = e.dataset.entity.startsWith("fact_"), history = e.dataset.entity === "dim_patient"; e.style.opacity = mode === "all" || (mode === "facts" && fact) || (mode === "dimensions" && !fact) || (mode === "history" && history) ? "1" : ".22"; e.style.filter = mode === "history" && !history ? "grayscale(1)" : "none" }); if (mode === "history") selectEntity("dim_patient"); else if (mode === "facts") selectEntity("fact_visits"); else if (mode === "dimensions") selectEntity("dim_date"); redrawDiagrams(); toast(mode === "all" ? "Showing full star schema" : mode === "facts" ? "Highlighting fact tables" : mode === "dimensions" ? "Highlighting dimensions" : "Highlighting SCD Type 2 history") }));
+
+        // SVG connectors are calculated from the actual card positions, so arrows stay attached
+        // when the layout resizes or a diagram is scrolled.
+        function svgEl(tag, attrs = {}) { const el = document.createElementNS("http://www.w3.org/2000/svg", tag); Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v)); return el }
+        function drawArchitectureLinks() {
+            const canvas = document.getElementById("archCanvas"), svg = document.getElementById("archLinks"); if (!canvas || !svg) return;
+            const rect = canvas.getBoundingClientRect(), w = canvas.scrollWidth, h = canvas.scrollHeight;
+            svg.setAttribute("viewBox", `0 0 ${w} ${h}`); svg.setAttribute("width", w); svg.setAttribute("height", h); svg.innerHTML = "";
+            const defs = svgEl("defs"), marker = svgEl("marker", { id: "archArrowHead", markerWidth: "8", markerHeight: "8", refX: "6.5", refY: "4", orient: "auto", markerUnits: "userSpaceOnUse" }); marker.appendChild(svgEl("path", { d: "M0 0 L8 4 L0 8 Z", class: "arrowhead" })); defs.appendChild(marker); svg.appendChild(defs);
+            const rels = [["sources", "sensor", "source files"], ["reference", "validate", "lookup data"], ["init", "staging", "schema ready"], ["sensor", "validate", "files ready"], ["validate", "staging", "clean batch"], ["staging", "dimensions", "staged rows"], ["dimensions", "facts", "surrogate keys"], ["facts", "reconcile", "loaded facts"], ["reconcile", "mart", "validated output"], ["dwh", "mart", "curated views"], ["mart", "metabase", "read-only BI"]];
+            const box = id => { const el = canvas.querySelector(`[data-node="${id}"]`); if (!el) return null; const r = el.getBoundingClientRect(); return { el, x: r.left - rect.left + canvas.scrollLeft, y: r.top - rect.top + canvas.scrollTop, w: r.width, h: r.height, cx: r.left - rect.left + r.width / 2 + canvas.scrollLeft, cy: r.top - rect.top + r.height / 2 + canvas.scrollTop, left: r.left - rect.left + canvas.scrollLeft, right: r.right - rect.left + canvas.scrollLeft, top: r.top - rect.top + canvas.scrollTop, bottom: r.bottom - rect.top + canvas.scrollTop }; };
+            rels.forEach(([from, to, label], idx) => {
+                const a = box(from), b = box(to); if (!a || !b) return;
+                // Connect from the nearest sensible edge, then bend through the whitespace between columns.
+                let p1, p2, points = [];
+                const sameColumn = Math.abs(a.cx - b.cx) < Math.min(a.w, b.w) * .65;
+                if (sameColumn) {
+                    if (a.cy <= b.cy) { p1 = { x: a.cx, y: a.bottom }; p2 = { x: b.cx, y: b.top }; }
+                    else { p1 = { x: a.cx, y: a.top }; p2 = { x: b.cx, y: b.bottom }; }
+                    const mid = (p1.y + p2.y) / 2;
+                    points = [p1, { x: p1.x, y: mid }, { x: p2.x, y: mid }, p2];
+                } else if (b.cx > a.cx) {
+                    p1 = { x: a.right, y: a.cy }; p2 = { x: b.left, y: b.cy };
+                    const gap = p2.x - p1.x, mid = p1.x + Math.max(18, gap * .5);
+                    points = [p1, { x: mid, y: p1.y }, { x: mid, y: p2.y }, p2];
+                } else {
+                    p1 = { x: a.left, y: a.cy }; p2 = { x: b.right, y: b.cy };
+                    const gap = p1.x - p2.x, mid = p1.x - Math.max(18, gap * .5);
+                    points = [p1, { x: mid, y: p1.y }, { x: mid, y: p2.y }, p2];
+                }
+                const d = points.map((pt, i) => (i ? "L " : "M ") + pt.x + " " + pt.y).join(" ");
+                const path = svgEl("path", { d, class: [0, 3, 4, 7].includes(idx) ? "hot" : "", "marker-end": "url(#archArrowHead)" }); svg.appendChild(path);
+                // Keep labels on a clear horizontal segment instead of the middle of a curve.
+                let lx, ly;
+                if (points.length === 4 && Math.abs(points[1].x - points[2].x) < 1) { lx = points[1].x + 5; ly = (points[1].y + points[2].y) / 2; }
+                else { lx = (points[1].x + points[2].x) / 2; ly = points[1].y - 8; }
+                const tw = Math.max(48, label.length * 5.7 + 12);
+                svg.appendChild(svgEl("rect", { x: lx - tw / 2, y: ly - 10, width: tw, height: 17, rx: 6, class: "label-bg" }));
+                const text = svgEl("text", { x: lx, y: ly + 1, "text-anchor": "middle" }); text.textContent = label; svg.appendChild(text);
+            });
+        }
+        function drawErdLinks() {
+            const erd = document.getElementById("erd"), svg = document.getElementById("erdLinks"); if (!erd || !svg) return;
+            const rect = erd.getBoundingClientRect(), w = erd.scrollWidth, h = erd.scrollHeight;
+            svg.setAttribute("viewBox", `0 0 ${w} ${h}`); svg.setAttribute("width", w); svg.setAttribute("height", h); svg.innerHTML = "";
+            const defs = svgEl("defs"), marker = svgEl("marker", { id: "erdArrowHead", markerWidth: "8", markerHeight: "8", refX: "6.5", refY: "4", orient: "auto", markerUnits: "userSpaceOnUse" }); marker.appendChild(svgEl("path", { d: "M0 0 L8 4 L0 8 Z", class: "rel-arrow" })); defs.appendChild(marker); svg.appendChild(defs);
+            const rels = [["dim_date", "fact_visits", "date_key"], ["dim_patient", "fact_visits", "patient_key"], ["dim_doctor", "fact_visits", "doctor_key"], ["dim_diagnosis", "fact_visits", "diagnosis_key"], ["fact_visits", "fact_lab_tests", "visit_key"], ["dim_test", "fact_lab_tests", "test_key"]];
+            const box = id => { const el = erd.querySelector(`[data-entity="${id}"]`); if (!el) return null; const r = el.getBoundingClientRect(); return { x: r.left - rect.left + erd.scrollLeft, y: r.top - rect.top + erd.scrollTop, w: r.width, h: r.height, cx: r.left - rect.left + r.width / 2 + erd.scrollLeft, cy: r.top - rect.top + r.height / 2 + erd.scrollTop, left: r.left - rect.left + erd.scrollLeft, right: r.right - rect.left + erd.scrollLeft, top: r.top - rect.top + erd.scrollTop, bottom: r.bottom - rect.top + erd.scrollTop }; };
+            rels.forEach(([from, to, label], idx) => {
+                const a = box(from), b = box(to); if (!a || !b) return;
+                let p1, p2, pts = [];
+                // Use the side facing the related table; relationship lines stay outside table bodies.
+                const dx = b.cx - a.cx, dy = b.cy - a.cy;
+                if (Math.abs(dx) > Math.abs(dy) * .85) {
+                    if (dx > 0) { p1 = { x: a.right, y: a.cy }; p2 = { x: b.left, y: b.cy }; }
+                    else { p1 = { x: a.left, y: a.cy }; p2 = { x: b.right, y: b.cy }; }
+                    const mid = (p1.x + p2.x) / 2;
+                    pts = [p1, { x: mid, y: p1.y }, { x: mid, y: p2.y }, p2];
+                } else {
+                    if (dy > 0) { p1 = { x: a.cx, y: a.bottom }; p2 = { x: b.cx, y: b.top }; }
+                    else { p1 = { x: a.cx, y: a.top }; p2 = { x: b.cx, y: b.bottom }; }
+                    const mid = (p1.y + p2.y) / 2;
+                    pts = [p1, { x: p1.x, y: mid }, { x: p2.x, y: mid }, p2];
+                }
+                const d = pts.map((pt, i) => (i ? "L " : "M ") + pt.x + " " + pt.y).join(" ");
+                const path = svgEl("path", { d, class: (from === "dim_patient" || from === "fact_visits" || from === "dim_test") ? "active-rel" : "", "marker-end": "url(#erdArrowHead)" }); svg.appendChild(path);
+                // Label sits on the long leg of the connector, not on top of an entity.
+                let lx = (pts[1].x + pts[2].x) / 2, ly = (pts[1].y + pts[2].y) / 2 - 8;
+                if (Math.abs(pts[1].x - pts[2].x) < 1) { lx += label.length % 2 ? 8 : -8; ly = (pts[1].y + pts[2].y) / 2; }
+                const tw = label.length * 6.1 + 14;
+                svg.appendChild(svgEl("rect", { x: lx - tw / 2, y: ly - 10, width: tw, height: 17, rx: 6, class: "rel-label-bg" }));
+                const txt = svgEl("text", { x: lx, y: ly + 1, "text-anchor": "middle" }); txt.textContent = label; svg.appendChild(txt);
+            });
+        }
+        let diagramRAF; function redrawDiagrams() { cancelAnimationFrame(diagramRAF); diagramRAF = requestAnimationFrame(() => { drawArchitectureLinks(); drawErdLinks() }) }
+        window.addEventListener("resize", redrawDiagrams); window.addEventListener("load", redrawDiagrams);
+        document.querySelectorAll("[data-node]").forEach(n => n.addEventListener("click", () => setTimeout(redrawDiagrams, 40)));
+        document.querySelectorAll("[data-entity]").forEach(n => n.addEventListener("click", () => setTimeout(redrawDiagrams, 40)));
+
+        const menu = document.getElementById("menu"), links = document.getElementById("links"); menu.addEventListener("click", () => { const open = links.classList.toggle("open"); menu.setAttribute("aria-expanded", String(open)) }); links.querySelectorAll("a").forEach(a => a.addEventListener("click", () => { links.classList.remove("open"); menu.setAttribute("aria-expanded", "false") }));
+        let toastTimer; function toast(msg) { const t = document.getElementById("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 1800) }
+        if ("IntersectionObserver" in window) { const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("visible"); io.unobserve(e.target); redrawDiagrams() } }), { threshold: .1 }); document.querySelectorAll(".reveal").forEach(x => io.observe(x)); const co = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { const el = e.target, target = +el.dataset.count, start = performance.now(); function tick(now) { const p = Math.min(1, (now - start) / 700); el.textContent = Math.round(target * (1 - Math.pow(1 - p, 3))); if (p < 1) requestAnimationFrame(tick) } requestAnimationFrame(tick); co.unobserve(el) } }), { threshold: .8 }); document.querySelectorAll("[data-count]").forEach(x => co.observe(x)) } else document.querySelectorAll(".reveal").forEach(x => x.classList.add("visible"));
+    </script>
+</body>
+
+</html>
