@@ -60,18 +60,28 @@ Every step is **idempotent**, **audited** and **orchestrated by Airflow**. All d
 <table>
   <tr>
     <td width="50%">
-      <img src="screenshots/Terminal_one.png" alt="Airflow DAGs overview" width="100%">
+      <img src="screenshots/airflow_dashboard.png" alt="Airflow DAGs overview" width="100%">
       <p align="center"><b>DAGs overview</b><br>Demo-data DAG and the daily ETL DAG, no failures</p>
     </td>
     <td width="50%">
-      <img src="screenshots/02-airflow-grid.png" alt="Airflow grid view with 14 successful daily runs" width="100%">
+      <img src="screenshots/dags_mediflow_daily_etl_grid.png" alt="Airflow grid view with 14 successful daily runs" width="100%">
       <p align="center"><b>Grid view</b><br>14 daily runs, every task succeeded</p>
     </td>
   </tr>
   <tr>
     <td colspan="2">
-      <img src="screenshots/03-airflow-graph.png" alt="Airflow graph view of the 7-task pipeline" width="100%">
-      <p align="center"><b>Graph view</b><br>init_warehouse → wait_for_source_files → extract_and_validate → load_staging → load_dimensions → load_facts → reconcile</p>
+      <img src="screenshots/mediflow_daily_etl.png" alt="Airflow view of the 7-task pipeline" width="100%">
+      <p align="center"><b>Pipeline view</b><br>init_warehouse → wait_for_source_files → extract_and_validate → load_staging → load_dimensions → load_facts → reconcile</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <img src="screenshots/dags_mediflow_demo_data_grid.png" alt="Demo data generator DAG run" width="100%">
+      <p align="center"><b>Demo-data DAG</b><br>Generates 14 days of synthetic source files</p>
+    </td>
+    <td width="50%">
+      <img src="screenshots/cluster_activity.png" alt="Airflow cluster activity" width="100%">
+      <p align="center"><b>Cluster activity</b><br>DAG runs and task instances at a glance</p>
     </td>
   </tr>
 </table>
@@ -81,28 +91,22 @@ Every step is **idempotent**, **audited** and **orchestrated by Airflow**. All d
 <table>
   <tr>
     <td width="50%">
-      <img src="screenshots/04-warehouse-row-counts.png" alt="Warehouse row counts and zero failed steps" width="100%">
+      <img src="screenshots/Terminal_one.png" alt="Warehouse row counts and zero failed steps" width="100%">
       <p align="center"><b>Warehouse row counts</b><br>Facts loaded, 0 failed steps, 0 failed reconciliation checks</p>
     </td>
     <td width="50%">
-      <img src="screenshots/05-data-quality-rejected-rows.png" alt="Quarantined rows with rejection reasons" width="100%">
+      <img src="screenshots/Terminal_two.png" alt="Quarantined rows with rejection reasons" width="100%">
       <p align="center"><b>Data-quality quarantine</b><br>Bad rows are stored with the reason they were rejected</p>
     </td>
   </tr>
   <tr>
     <td width="50%">
-      <img src="screenshots/06-scd2-history.png" alt="SCD Type 2 patient history" width="100%">
+      <img src="screenshots/Terminal_three.png" alt="SCD Type 2 patient history" width="100%">
       <p align="center"><b>SCD Type 2 history</b><br>One patient, several versions with <code>valid_from</code> / <code>valid_to</code></p>
     </td>
     <td width="50%">
-      <img src="screenshots/07-daily-visits-report.png" alt="Daily visits report from the mart schema" width="100%">
+      <img src="screenshots/Terminal_four.png" alt="Daily visits report from the mart schema" width="100%">
       <p align="center"><b>Reporting view</b><br>Daily visits, no-show rate and revenue from <code>mart.v_daily_visits</code></p>
-    </td>
-  </tr>
-  <tr>
-    <td colspan="2">
-      <img src="screenshots/08-metabase-dashboard.png" alt="Metabase dashboard on the mart schema" width="100%">
-      <p align="center"><b>Metabase dashboard</b><br>Built on the read-only, PII-free <code>mart</code> schema</p>
     </td>
   </tr>
 </table>
